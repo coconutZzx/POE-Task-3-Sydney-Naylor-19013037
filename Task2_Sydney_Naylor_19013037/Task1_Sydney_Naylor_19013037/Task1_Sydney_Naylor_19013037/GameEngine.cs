@@ -230,6 +230,7 @@ namespace Task1_Sydney_Naylor_19013037
                 {
                     case "Melee": map.AddUnit(new MeleeUnit(recordIn)); break;
                     case "Ranged": map.AddUnit(new RangedUnit(recordIn)); break;
+                    case "Wizards": map.AddUnit(new WizardUnit(recordIn)); break;
                     case "Factory": map.AddBuilding(new FactoryBuilding(recordIn)); break;
                     case "Resource": map.AddBuilding(new ResourceBuilding(recordIn)); break;
                 }
