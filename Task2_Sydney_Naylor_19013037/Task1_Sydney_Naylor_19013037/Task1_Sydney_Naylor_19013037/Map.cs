@@ -16,7 +16,7 @@ namespace Task1_Sydney_Naylor_19013037
         //const int X = 20;
         //const int Y = 20;
 
-        const int MAPSIZE = 20;
+        public const int MAPSIZE = 20;
         Random random = new Random();
         int numberUnits;
         int numberBuildings;
@@ -68,7 +68,11 @@ namespace Task1_Sydney_Naylor_19013037
             }
             return mapString;
         }
-
+        public void Clear()
+        {
+            units = new Unit[0];
+            buildings = new Building[0];
+        }
         public void Reset()
         {
             map = new string[MAPSIZE, MAPSIZE];
@@ -105,7 +109,7 @@ namespace Task1_Sydney_Naylor_19013037
                 int teamIndex = random.Next(0, 2);
                 int unitType = random.Next(0, 2);
 
-                while(map[xPosition,yPosition] != null)
+                while (map[xPosition, yPosition] != null)
                 {
                     xPosition = random.Next(0, MAPSIZE);
                     yPosition = random.Next(0, MAPSIZE);
@@ -181,7 +185,22 @@ namespace Task1_Sydney_Naylor_19013037
 
 
         }
+        public void AddUnit(Unit unit)
+        {
+            Unit[] resizeUnits = new Unit[units.Length + 1];
 
+            for (int i = 0; i < units.Length; i++)
+            {
+                resizeUnits[i] = units[i];
+            }
+            resizeUnits[resizeUnits.Length - 1] = unit;
+            units = resizeUnits;
+        }
+        public void AddBuilding(Building building)
+        {
+            Array.Resize(ref buildings, buildings.Length + 1);
+            buildings[buildings.Length - 1] = building;
+        }
 
 
         //public void GenerateBattlefield()
