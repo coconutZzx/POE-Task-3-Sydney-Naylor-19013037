@@ -23,7 +23,7 @@ namespace Task1_Sydney_Naylor_19013037
         Building[] buildings;
         Unit[] units;
         string[,] map;
-        string[] teams = { "Zombies", "Survivors" };
+        string[] teams = { "Zombies", "Survivors", "Wizards" };
 
         //char[,] populate = new char[X, Y];  // string[,] populate = new string[20, 20];
 
