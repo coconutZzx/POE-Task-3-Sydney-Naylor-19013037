@@ -12,32 +12,19 @@ namespace Task1_Sydney_Naylor_19013037
 {
     public partial class frmGame : Form
     {
-        GameEngine engine = new GameEngine();
-        Timer timer = new Timer();
+        GameEngine engine;
+        Timer timer;
         GameState gameState = GameState.PAUSED;
-        
+        int count = 0;
         public frmGame()
         {
             InitializeComponent();
-
             engine = new GameEngine();
-            lblArea.Text = engine.GetMapDisplay();
-            rTxtBox.Text = engine.GetUnitInfo() + engine.GetBuildingInfo();
-            //rTxtBox.Text = engine.GetBuildingInfo();
-            lblRounds.Text = "Round: " + engine.Round;
+            UpdateUI();
 
             timer = new Timer();
-            timer.Interval = 1000/60;
-            timer.Tick += LblRounds_Click;
-
-
-            //InitializeComponent();
-            //map.GenerateBattlefield();
-            //rTxtBox.Text = map.GetInfo();
-            //for (int i = 0; i < map.numberUnits ; i++)
-            //{
-            //    txtBox.Text += map.units[i].ToString();
-            //}
+            timer.Interval = 1000;
+            timer.Tick += TimerTick;
         }
         private void UpdateUI()
         {
@@ -45,6 +32,7 @@ namespace Task1_Sydney_Naylor_19013037
             rTxtBox.Text = engine.GetUnitInfo() + engine.GetBuildingInfo();
             //rTxtBox.Text = engine.GetBuildingInfo();
             lblRounds.Text = "Round: " + engine.Round;
+
         }
         public enum GameState
         {
@@ -83,8 +71,8 @@ namespace Task1_Sydney_Naylor_19013037
 
         private void BtnStartPause_Click(object sender, EventArgs e)
         {
-
-            if (gameState == GameState.RUNNING)
+            timer.Start();
+            /*if (gameState == GameState.RUNNING)
             {
                 timer.Stop();
                 gameState = GameState.PAUSED;
@@ -92,14 +80,14 @@ namespace Task1_Sydney_Naylor_19013037
             }
             else
             {
-                if(gameState == GameState.ENDED)
+                if (gameState == GameState.ENDED)
                 {
                     engine.Reset();
                 }
                 timer.Start();
                 gameState = GameState.RUNNING;
                 btnStartPause.Text = "Pause";
-            }
+            }*/
 
             // Populate();
             // map.Render(lblArea);
@@ -118,11 +106,22 @@ namespace Task1_Sydney_Naylor_19013037
         {
             engine.SaveUnitsToFile();
             engine.SaveBuidlingsToFile();
+            lblArea.Text = "Game Saved! \n" + lblArea.Text;
         }
 
         private void BtnRead_Click(object sender, EventArgs e)
         {
+            engine.LoadGame();
+            
 
+        }
+        private void TimerTick(object sender, EventArgs e)
+        {
+            count++;
+            timer.
+            engine.GameLoop();
+            LblRounds.Text = count + ""; 
+            UpdateUI();
         }
     }
 }
