@@ -72,6 +72,7 @@ namespace Task1_Sydney_Naylor_19013037
         private void BtnStartPause_Click(object sender, EventArgs e)
         {
             timer.Start();
+            BtnStartPause_Click.Text = "Start" + "\n" + "(click for each round)";
             /*if (gameState == GameState.RUNNING)
             {
                 timer.Stop();
