@@ -9,6 +9,12 @@ namespace Task1_Sydney_Naylor_19013037
 {
     class GameEngine
     {
+        public static Random random = new Random();
+
+        const string UNITS_FILENAME = "units.txt";
+        const string BUILDINGS_FILENAME = "buildings.txt";
+        const string ROUND_FILENAME = "rounds.txt";
+
         Map map;
         bool gameOver = false;
         string winningTeam = "";
@@ -16,7 +22,7 @@ namespace Task1_Sydney_Naylor_19013037
 
         public GameEngine()
         {
-            map = new Map(10, 4);
+            map = new Map(10, 5);
         }
         public bool GameOver
         {
@@ -24,7 +30,7 @@ namespace Task1_Sydney_Naylor_19013037
         }
         public string WinningTeam
         {
-            get { return winningTeam;  }
+            get { return winningTeam; }
         }
         public int Round
         {
@@ -79,7 +85,7 @@ namespace Task1_Sydney_Naylor_19013037
 
                 double healthPercent = unit.Health / unit.MaxHealth;
 
-                if(healthPercent <= 0.25)
+                if (healthPercent <= 0.25)
                 {
                     unit.RunAway();
                 }
@@ -93,26 +99,79 @@ namespace Task1_Sydney_Naylor_19013037
                 }
                 StayInBounds(unit, map.Size);
             }
+            UpdateUnits();
+            UpdateBuildings();
             map.UpdateMap();
             round++;
         }
-
+        void UpdateBuildings()
+        {
+            foreach (Building building in map.Buildings)
+            {
+                if (building is FactoryBuilding)
+                {
+                    FactoryBuilding factoryBuilding = (FactoryBuilding)building;
+                    if (round % factoryBuilding.ProductionSpeed == 0)
+                    {
+                        Unit newUnit = factoryBuilding.SpawnUnits();
+                        map.AddUnit(newUnit);
+                    }
+                }
+                else if (building is ResourceBuilding)
+                {
+                    ResourceBuilding resourceBuilding = (ResourceBuilding)building;
+                    resourceBuilding.GenerateResources();
+                }
+            }
+        }
+        void UpdateUnits()
+        {
+            foreach (Unit unit in map.Units)
+            {
+                if (unit.Destroyed)
+                {
+                    continue;
+                }
+                Unit closestUnit = unit.GetClosestUnit(map.Units);
+                if (closestUnit == null)
+                {
+                    gameOver = true;
+                    winningTeam = unit.Team;
+                    map.UpdateMap();
+                    return;
+                }
+                double healthPercentage = unit.Health / unit.MaxHealth;
+                if (healthPercentage <= 0.25)
+                {
+                    unit.RunAway();
+                }
+                else if (unit.InAttackRange(closestUnit))
+                {
+                    unit.Attack(closestUnit);
+                }
+                else
+                {
+                    unit.Move(closestUnit);
+                }
+                StayInBounds(unit, map.Size);
+            }
+        }
         private void StayInBounds(Unit unit, int size)
         {
-            if(unit.xPos < 0)
+            if (unit.xPos < 0)
             {
                 unit.xPos = 0;
             }
-            else if(unit.xPos >= size)
+            else if (unit.xPos >= size)
             {
                 unit.xPos = size - 1;
             }
 
-            if(unit.yPos < 0)
+            if (unit.yPos < 0)
             {
                 unit.yPos = 0;
             }
-            else if(unit.yPos >= size)
+            else if (unit.yPos >= size)
             {
                 unit.yPos = size - 1;
             }
@@ -141,6 +200,79 @@ namespace Task1_Sydney_Naylor_19013037
             }
             srw.Close();
             bFile.Close();
+        }
+        public void SaveGame()
+        {
+            Save(UNITS_FILENAME, map.Units);
+            Save(BUILDINGS_FILENAME, map.Buildings);
+            SaveRound();
+        }
+        public void LoadGame()
+        {
+            map.Clear();
+            Load(UNITS_FILENAME);
+            Load(BUILDINGS_FILENAME);
+            LoadRound();
+            map.UpdateMap();
+        }
+        private void Load(string filename)
+        {
+            FileStream inFile = new FileStream(filename, FileMode.Open, FileAccess.Read);
+            StreamReader reader = new StreamReader(inFile);
+
+            string recordIn;
+            recordIn = reader.ReadLine();
+            while (recordIn != null)
+            {
+                int length = recordIn.IndexOf(",");
+                string firstField = recordIn.Substring(0, length);
+                switch (firstField)
+                {
+                    case "Melee": map.AddUnit(new MeleeUnit(recordIn)); break;
+                    case "Ranged": map.AddUnit(new RangedUnit(recordIn)); break;
+                    case "Factory": map.AddBuilding(new FactoryBuilding(recordIn)); break;
+                    case "Resource": map.AddBuilding(new ResourceBuilding(recordIn)); break;
+                }
+                recordIn = reader.ReadLine();
+            }
+            reader.Close();
+            inFile.Close();
+        }
+        private void Save(string filename, object[] objects)
+        {
+            FileStream outFile = new FileStream(filename, FileMode.Create, FileAccess.Write);
+            StreamWriter writer = new StreamWriter(outFile);
+            foreach (object obj in objects)
+            {
+                if (obj is Unit)
+                {
+                    Unit unit = (Unit)obj;
+                    writer.WriteLine(unit.Save());
+                }
+                else if (obj is Building)
+                {
+                    Building unit = (Building)obj;
+                    writer.WriteLine(unit.Save());
+                }
+            }
+            writer.Close();
+            outFile.Close();
+        }
+        private void SaveRound()
+        {
+            FileStream outFile = new FileStream(ROUND_FILENAME, FileMode.Create, FileAccess.Write);
+            StreamWriter writer = new StreamWriter(outFile);
+            writer.WriteLine(round);
+            writer.Close();
+            outFile.Close();
+        }
+        private void LoadRound()
+        {
+            FileStream inFile = new FileStream(ROUND_FILENAME, FileMode.Open, FileAccess.Read);
+            StreamReader reader = new StreamReader(inFile);
+            round = int.Parse(reader.ReadLine());
+            reader.Close();
+            inFile.Close();
         }
 
     }
