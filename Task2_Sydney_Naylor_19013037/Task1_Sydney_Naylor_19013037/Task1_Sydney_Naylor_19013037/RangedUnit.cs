@@ -8,11 +8,18 @@ namespace Task1_Sydney_Naylor_19013037
 {
     class RangedUnit : Unit  // inherits from unit
     {
-        public RangedUnit(int xPosition, int yPosition, string team) : base(xPosition, yPosition, 100, 2, 15, 2, "Survivors", 'S')
+        public RangedUnit(int xPosition, int yPosition, string team) : base(xPosition, yPosition, 100, 2, 15, 2, "Survivors", 'S', "Survivors")
         {
 
         }
-
+        public RangedUnit(string values) : base(values) { }
+        public override string Save()
+        {
+            return string.Format(
+            $"Ranged, {xPosition}, {yPosition}, {health}, {maxHealth}, {speed}, {attack}, {attackRange}," +
+            $"{team}, {image}, {name}, {destroyed}"
+            );
+        }
         public override void Move(Unit closestUnit)
         {
             attacking = false;
@@ -52,6 +59,27 @@ namespace Task1_Sydney_Naylor_19013037
             return GetDistance(otherUnit) <= attackRange;
         }
 
+        public override Unit GetClosestBuilding(Building[] buildings)
+        {
+            double closestDistance = int.MaxValue;
+            Building closestUnit = null;
+
+            foreach (Building otherBuilding in buildings)
+            {
+                if (otherBuilding == this || otherBuilding.Team == team || otherBuilding.Destroyed)
+                {
+                    continue;
+                }
+                double distance = GetDistance(otherBuilding);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestUnit = otherBuilding;
+                }
+            }
+            return closestBuilding;
+        }
+
         public override Unit GetClosestUnit(Unit[] units)
         {
             double closestDistance = int.MaxValue;
@@ -59,12 +87,12 @@ namespace Task1_Sydney_Naylor_19013037
 
             foreach (Unit otherUnit in units)
             {
-                if(otherUnit == this || otherUnit.Team == team || otherUnit.Destroyed)
+                if (otherUnit == this || otherUnit.Team == team || otherUnit.Destroyed)
                 {
                     continue;
                 }
                 double distance = GetDistance(otherUnit);
-                if(distance < closestDistance)
+                if (distance < closestDistance)
                 {
                     closestDistance = distance;
                     closestUnit = otherUnit;
@@ -98,7 +126,7 @@ namespace Task1_Sydney_Naylor_19013037
 
         public override int xPos
         {
-            get {  return xPosition; }
+            get { return xPosition; }
             set { xPosition = value; }
         }
         public override int yPos
@@ -126,12 +154,6 @@ namespace Task1_Sydney_Naylor_19013037
         public override bool Destroyed
         {
             get { return destroyed; }
-        }
-
-        public override string Save()
-        {
-            string info = xPos + "," + yPos + "," + health + "," + team;
-            return info;
         }
 
         //public override double ReturnUnit()
